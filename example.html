@@ -7,19 +7,99 @@
 <title>ProgressNum.js</title>
 <style>
 *{ margin: 0; padding: 0; border: 0;  }
+input,button,a{outline: none;}
+.mtop10{ margin-top: 10px; }
+.mtop20{ margin-top: 20px; }
+.example{ padding-top: 50px; text-align: center;  }
+h2{ font-size: 18px; font-weight: normal;  margin-bottom: 20px; }
+.btn{ vertical-align: middle; margin: 0 .5em; padding: 0 1em; height: 30px; line-height: 30px; background: #06c; color: #fff; text-align: center;
+    border-radius: 4px; font-size: 14px; }
+.uploadBox{ position: relative; margin: 0 auto; width: 170px; height: 200px; line-height: 200px; border: 1px solid #ccc; overflow: hidden; 
+    background-size:contain; background-repeat: no-repeat; background-position: center; text-align: center; }
+.uploadBox .text{display: block; position: absolute; left: 0; top: 0; width: 100%; color: #777; font-size: 14px;}
+.uploadBox .fileInput{position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0;}
+.uploadBox .uploading{ display: none; position: absolute; left: 0; top: 0; width: 100%; height: 100%; background:rgba(0,0,0,.5); color: #fff; }
 </style>
 </head>
 <body>
     <div class="example">
+        <h2>案例一</h2>
         <p>
             上传中
-            <span id="progressing"></span>
+            <span id="progressing">0.00</span>
             %
         </p>
+        <div class="mtop10">
+            <button class="btn" id="start">开始</button>
+            <button class="btn" id="end">结束</button>
+        </div>
     </div>
+
+    <div class="example">
+        <h2>案例二</h2>
+        <div id="uploadBox" class="uploadBox">
+            <span class="text" id="placeholderText">请选择图片</span>
+            <input type="file" id="fileInput" class="fileInput" />
+            <p id="uploading" class="uploading">
+                上传中
+                <span id="uploadFileProgress">0.00</span>%
+            </p>
+        </div>
+    </div>
+<script src="jquery1.7.2.min.js"></script>
 <script src="ProgressNum.js"></script>
 <script>
+// 案例一
+var progress = new ProgressNum('#progressing'),
+    $start = $('#start'),
+    $end = $('#end');
 
+$start.on('click',function(){
+    progress.start();
+});
+$end.on('click',function(){
+    progress.end();
+});
+
+// 案例二
+var $file = $('#fileInput');
+var uploadFileLoading = new ProgressNum({
+        selector:'#uploadFileProgress',
+        done:function(){
+            $("#uploading").fadeOut('fast');
+        }
+    });
+    
+$file.on('change',function(e){
+    var files = this.files;
+    if(!files || files.length===0) return ;
+    var file = files[0],
+        url = getObjectURL(file),
+        $uploadBox = $("#uploadBox");
+    $uploadBox.css('background-image','url('+url+')');
+    $("#uploading").fadeIn('fast');
+    $("#placeholderText").fadeOut('fast');
+    uploadFileLoading.start();
+
+    setTimeout(function(){
+        uploadFileLoading.end();
+
+    }, Math.random()*(8000-4000)+4000);
+});
+
+
+/* 获取本地图片的地址 */
+function getObjectURL (file) {
+    var url = null;
+    if (window.createObjectURL != undefined) {
+        url = window.createObjectURL(file)
+    } else if (window.URL != undefined) {
+        url = window.URL.createObjectURL(file)
+    } else if (window.webkitURL != undefined) {
+        url = window.webkitURL.createObjectURL(file)
+    }
+    return url
+};
 </script>
 </body>
 </html>

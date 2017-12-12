@@ -38,12 +38,20 @@ ProgressNum.prototype.start = function(){
         from = opts.from,
         speed = opts.speed,
         frequency = opts.frequency;
+    that.node.text('0.00');
     if( !opts.selector ){
         console.error('opts.selector is not defined');
         return false;
     }
     this.circle = setInterval(function(){
-        from += that.getSpeedRandom(speed);
+        var increasing = that.getSpeedRandom(speed);
+        if( from>80 ){
+            increasing = increasing/5;
+        }else if( from>50 ){
+            increasing = increasing/2;
+        }
+        // console.log(increasing);
+        from += increasing;
         if( from>=100 ){
             from=100;
             clearInterval(that.circle);
